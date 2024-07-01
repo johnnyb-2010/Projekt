@@ -1,39 +1,67 @@
 document.addEventListener('DOMContentLoaded', function() {
-
     const itemInput = document.getElementById('input-to-do');
     const list = document.getElementById('tasklist');
-    const button = document.getElementById('addbutton');
+    const addButton = document.getElementById('addbutton');
 
-    button.addEventListener('click', function() {
+    function loadTasks() {
+        const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        
+        savedTasks.forEach(function(taskText) {
+            const addItem = createTaskElement(taskText);
+            list.appendChild(addItem);
+        });
+    }
 
+    function saveTasks() {
+        const tasks = [];
+
+        const taskItems = list.querySelectorAll('li');
+        taskItems.forEach(function(taskItem) {
+            tasks.push(taskItem.textContent.trim());
+        });
+
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function createTaskElement(taskText) {
+        const addItem = document.createElement('li');
+        addItem.textContent = taskText;
+
+        addItem.addEventListener('click', function() {
+            addItem.classList.toggle('completed');
+            setTimeout(function() {
+                addItem.remove();
+                saveTasks();
+            }, 3000);
+        });
+
+        return addItem;
+    }
+
+
+    loadTasks();
+
+    addButton.addEventListener('click', function() {
         const taskText = itemInput.value.trim();
 
         if (taskText !== '') {
-
-            const addItem = document.createElement('li');
-            const checkbox = document.createElement('input'); // Korrektur hier
-            checkbox.type = 'checkbox';
-            checkbox.classList.add('task-checkbox');
-
-            const taskSpan = document.createElement('span');
-            taskSpan.textContent = taskText;
-
-            checkbox.addEventListener('change', function() { // Korrektur hier
-                if (checkbox.checked) {
-                    taskSpan.classList.add('completed');
-                } else {
-                    taskSpan.classList.remove('completed');
-                }
-            });
-
-            addItem.appendChild(checkbox);
-            addItem.appendChild(taskSpan);
-
+            const addItem = createTaskElement(taskText);
             list.appendChild(addItem);
+            saveTasks();
             itemInput.value = '';
         }
     });
+
+    itemInput.addEventListener('keydown', function(event) {
+        if (event.keyCode === 13) {
+            const taskText = itemInput.value.trim();
+
+            if (taskText !== '') {
+                const addItem = createTaskElement(taskText);
+                list.appendChild(addItem);
+                saveTasks();
+                itemInput.value = '';
+            }
+        }
+    });
 });
-addEventListener("keydown", function(e) {
-    if (e.code === ) {
-        
